@@ -1,2 +1,3 @@
 # GrocerList
-Grocery management application
+Grocery Management Application in Unity and Android Studio for Android and IOS.
+
