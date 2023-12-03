@@ -20,7 +20,6 @@
 
     </ScrollView>
 
-
     <Button
             android:id="@+id/addButton"
             android:layout_width="wrap_content"
