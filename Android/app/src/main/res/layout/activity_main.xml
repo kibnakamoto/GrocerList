@@ -5,6 +5,22 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+	<ScrollView
+        android:layout_width="match_parent"
+		android:fadeScrollbars="true"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/checkboxContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+			android:layout_marginTop="75dp"
+            android:orientation="vertical">
+        </LinearLayout>
+
+    </ScrollView>
+
+
     <Button
             android:id="@+id/addButton"
             android:layout_width="wrap_content"
@@ -27,17 +43,6 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
 		android:layout_marginTop="16dp" />
-	
-    <!-- Checkbox and Text View -->
-    <CheckBox
-        android:id="@+id/strikeCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Strike"
-        android:layout_below="@id/searchBar"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_margin="16dp" />
 
 </RelativeLayout>
 
