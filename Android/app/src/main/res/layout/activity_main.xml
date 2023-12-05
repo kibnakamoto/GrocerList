@@ -42,13 +42,38 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
 		android:layout_marginTop="16dp" />
-	
 
-    <Spinner
-        android:id="@+id/spinner_dropdown"
-        android:layout_width="wrap_content"
+	
+<!-- Add/Remove list -->
+	  <LinearLayout
+        android:id="@+id/buttonsLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"/>
+        android:orientation="horizontal"
+        android:layout_below="@id/searchBar">
+        <Button
+            android:id="@+id/btnAddItem"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+			android:text="Add List"/>
+
+        <Button
+            android:id="@+id/btnRemoveItem"
+            android:layout_width="10dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+			android:text="Remove List"/>
+	</LinearLayout>
+	
+	<Spinner
+        android:id="@+id/spinner_dropdown"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+		android:layout_below="@id/buttonsLayout"
+        android:layout_marginBottom="16dp"/>
+
 
 </RelativeLayout>
 

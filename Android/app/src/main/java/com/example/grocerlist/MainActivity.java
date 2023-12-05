@@ -1,10 +1,13 @@
 package com.example.grocerlist;
 
+import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.view.LayoutInflater;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -12,9 +15,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.app.AlertDialog;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -24,7 +24,11 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private LinearLayout checkboxContainer;
-    private Button addButton;
+    private Button addButton; // for list in the list
+
+    private Button addListButton; // list adder
+    private Button removeListButton; // list remover
+
     private ArrayAdapter<String> adapter; // for the list of lists
 
     // list of lists
@@ -43,8 +47,6 @@ public class MainActivity extends AppCompatActivity {
         // add list of lists
         spinnerDropdown = findViewById(R.id.spinner_dropdown);
         dropdownItems = new ArrayList<>();
-        dropdownItems.add("Add List");
-        dropdownItems.add("Remove List");
 
         // Create an ArrayAdapter using the string array and a default spinner layout
         adapter = new ArrayAdapter<>(
@@ -57,16 +59,11 @@ public class MainActivity extends AppCompatActivity {
         // Apply the adapter to the spinner
         spinnerDropdown.setAdapter(adapter);
 
-        // Set a listener to handle item selection
+        // when a new list is selected
         spinnerDropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String selectedItem = dropdownItems.get(position);
-                if (selectedItem.compareTo("Add List") == 0) {
-                    showAddItemDialog();
-                } else if(selectedItem.compareTo("Remove List") == 0) {
-                    showRemoveItemDialog();
-                }
+                String selectedList = dropdownItems.get(position);
             }
 
             @Override
@@ -75,11 +72,28 @@ public class MainActivity extends AppCompatActivity {
 
         checkboxContainer = findViewById(R.id.checkboxContainer);
         addButton = findViewById(R.id.addButton);
+        addListButton = findViewById(R.id.btnAddItem);
+        removeListButton = findViewById(R.id.btnRemoveItem);
 
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openEditTextDialog();
+            }
+        });
+
+        addListButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showAddItemDialog();
+            }
+        });
+
+
+        removeListButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showRemoveItemDialog();
             }
         });
     }
@@ -91,12 +105,19 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
+    // save entered data
+    private void save_to_json()
+    {
+
+    }
+
+    // remove list
     private void showRemoveItemDialog() {
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_add_item, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Remove Item")
-                .setMessage("Select an item to remove:")
+        builder.setTitle("Remove List")
+                .setMessage("Select a list to remove:")
                 .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -104,9 +125,7 @@ public class MainActivity extends AppCompatActivity {
                         EditText editText = dialogView.findViewById(R.id.editTextButtonName);
                         String buttonName = editText.getText().toString();
                         // Remove the selected item
-                        if(buttonName.compareTo("Add List") != 0 || buttonName.compareTo("Remove List") != 0) {
-                            dropdownItems.remove(buttonName);
-                        }
+                        dropdownItems.remove(buttonName); // TODO: verify that the user wants to delete it
                         // Update the adapter
                         adapter.notifyDataSetChanged();
                     }
@@ -116,25 +135,32 @@ public class MainActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-    // Add a new list
-    public void onAddItemClick(View view) {
-        addItemToDropdown("New List");
-    }
-
-    // Show an AlertDialog to get the button name from the user
+    // get the button name from the user and add new list
     private void showAddItemDialog() {
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_add_item, null);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialogView)
-                .setTitle("Enter Button Name")
+                .setTitle("New List")
                 .setPositiveButton("Add List", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         EditText editText = dialogView.findViewById(R.id.editTextButtonName);
                         String buttonName = editText.getText().toString();
-                        addItemToDropdown(buttonName);
+                        // add if it doesn't exist already
+                        boolean equal = false;
+                        for(String button : dropdownItems) {
+                            if(buttonName.compareTo(button) == 0) {
+                                equal = true;
+                                break;
+                            }
+                        }
+                        if(!equal) {
+                            addItemToDropdown(buttonName);
+                        } else {
+                            // TODO: give an information popup that tells the user that the list exists
+                        }
                     }
                 })
                 .setNegativeButton("Cancel", null);
