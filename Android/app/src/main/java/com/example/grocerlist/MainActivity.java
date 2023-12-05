@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         removeListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -117,15 +116,17 @@ public class MainActivity extends AppCompatActivity {
         View dialogView = inflater.inflate(R.layout.dialog_add_item, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Remove List")
-                .setMessage("Select a list to remove:")
+                .setMessage("Are you sure you want to remove list: '" + (String)spinnerDropdown.getSelectedItem() + "'?")
                 .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Get the selected item
                         EditText editText = dialogView.findViewById(R.id.editTextButtonName);
-                        String buttonName = editText.getText().toString();
+                        String selectedList = (String) spinnerDropdown.getSelectedItem();
+
                         // Remove the selected item
-                        dropdownItems.remove(buttonName); // TODO: verify that the user wants to delete it
+                        dropdownItems.remove(selectedList);
+
                         // Update the adapter
                         adapter.notifyDataSetChanged();
                     }
