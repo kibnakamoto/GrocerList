@@ -1,16 +1,17 @@
 package com.example.grocerlist;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -19,15 +20,27 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+// grocery list item
+class GroceryItem
+{
+    public boolean checked; // checked off
+    public String name;
+
+    public GroceryItem(String name, boolean checked)
+    {
+        this.checked = checked;
+        this.name = name;
+    }
+}
 
 public class MainActivity extends AppCompatActivity {
 
     private LinearLayout checkboxContainer;
-    private Button addButton; // for list in the list
-
-    private Button addListButton; // list adder
-    private Button removeListButton; // list remover
 
     private ArrayAdapter<String> adapter; // for the list of lists
 
@@ -36,6 +49,11 @@ public class MainActivity extends AppCompatActivity {
     private Spinner spinnerDropdown;
     private List<String> dropdownItems;
 
+    private String currentList; // which list is currently selected
+
+    // format: Map< list, grocery-items<grocery item> >
+    private Map<String, List<GroceryItem>> groceryLists; // the list of lists
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,10 +61,20 @@ public class MainActivity extends AppCompatActivity {
 
         // Find views by their respective IDs
         EditText searchBar = findViewById(R.id.searchBar);
+        checkboxContainer = findViewById(R.id.checkboxContainer);
+        // for list in the list
+        Button addButton = findViewById(R.id.addButton);
+        // list adder
+        Button addListButton = findViewById(R.id.btnAddItem);
+        // list remover
+        Button removeListButton = findViewById(R.id.btnRemoveItem);
+
 
         // add list of lists
         spinnerDropdown = findViewById(R.id.spinner_dropdown);
         dropdownItems = new ArrayList<>();
+        currentList = null; // no list selected
+        groceryLists = new HashMap<>();
 
         // Create an ArrayAdapter using the string array and a default spinner layout
         adapter = new ArrayAdapter<>(
@@ -63,38 +91,38 @@ public class MainActivity extends AppCompatActivity {
         spinnerDropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String selectedList = dropdownItems.get(position);
+                currentList = dropdownItems.get(position);
+
+                // remove all checkboxes from screen.
+                checkboxContainer.removeAllViews();
+
+                // put the values from the new selected list
+                for(GroceryItem item : Objects.requireNonNull(groceryLists.get(currentList))) {
+                    addCheckbox(item.name, item.checked);
+
+                }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {}
         });
 
-        checkboxContainer = findViewById(R.id.checkboxContainer);
-        addButton = findViewById(R.id.addButton);
-        addListButton = findViewById(R.id.btnAddItem);
-        removeListButton = findViewById(R.id.btnRemoveItem);
-
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        // add new item to list
+        addButton.setOnClickListener(view -> {
+            if(currentList != null) {
                 openEditTextDialog();
+            } else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("Add Grocery Item")
+                        .setMessage("Please create a list first")
+                        .setPositiveButton("Ok", null);
+                builder.create().show();
             }
         });
 
-        addListButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showAddItemDialog();
-            }
-        });
+        addListButton.setOnClickListener(view -> showAddItemDialog());
 
-        removeListButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showRemoveItemDialog();
-            }
-        });
+        removeListButton.setOnClickListener(view -> showRemoveItemDialog());
     }
 
     // Method to dynamically add items to the list of lists
@@ -104,32 +132,34 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
     }
 
-    // save entered data
-    private void save_to_json()
-    {
-
-    }
-
     // remove list
     private void showRemoveItemDialog() {
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_add_item, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Remove List")
-                .setMessage("Are you sure you want to remove list: '" + (String)spinnerDropdown.getSelectedItem() + "'?")
-                .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Get the selected item
-                        EditText editText = dialogView.findViewById(R.id.editTextButtonName);
-                        String selectedList = (String) spinnerDropdown.getSelectedItem();
+                .setMessage("Are you sure you want to remove list: '" + spinnerDropdown.getSelectedItem() + "'?")
+                .setPositiveButton("Remove", (dialog, which) -> {
+                    // Get the selected item
+                    String selectedList = (String) spinnerDropdown.getSelectedItem();
 
-                        // Remove the selected item
-                        dropdownItems.remove(selectedList);
+                    // Remove the selected item
+                    dropdownItems.remove(selectedList);
 
-                        // Update the adapter
-                        adapter.notifyDataSetChanged();
+                    // select new list value
+                    if(!dropdownItems.isEmpty()) {
+                        currentList = (String) spinnerDropdown.getSelectedItem();
+
+                        // put the values from the new selected list
+                        for (GroceryItem item : Objects.requireNonNull(groceryLists.get(currentList))) {
+                            addCheckbox(item.name, item.checked);
+                        }
+                        groceryLists.remove(selectedList); // remove old item
+                    } else {
+                        currentList = null;
                     }
+                    checkboxContainer.removeAllViews();
+
+                    // Update the adapter
+                    adapter.notifyDataSetChanged();
                 })
                 .setNegativeButton("Cancel", null);
 
@@ -144,24 +174,32 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialogView)
                 .setTitle("New List")
-                .setPositiveButton("Add List", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        EditText editText = dialogView.findViewById(R.id.editTextButtonName);
-                        String buttonName = editText.getText().toString();
-                        // add if it doesn't exist already
-                        boolean equal = false;
-                        for(String button : dropdownItems) {
-                            if(buttonName.compareTo(button) == 0) {
-                                equal = true;
-                                break;
-                            }
+                .setPositiveButton("Add List", (dialog, which) -> {
+                    EditText editText = dialogView.findViewById(R.id.editTextButtonName);
+                    String buttonName = editText.getText().toString().trim();
+                    // add if it doesn't exist already
+                    boolean equal = false;
+                    for(String button : dropdownItems) {
+                        if(buttonName.compareTo(button) == 0) {
+                            equal = true;
+                            break;
                         }
-                        if(!equal) {
-                            addItemToDropdown(buttonName);
-                        } else {
-                            // TODO: give an information popup that tells the user that the list exists
-                        }
+                    }
+                    if(!equal) {
+                        currentList = buttonName;
+                        groceryLists.put(currentList, new ArrayList<>()); // create empty list
+
+                        addItemToDropdown(buttonName);
+                        spinnerDropdown.setSelection(dropdownItems.indexOf(buttonName));
+
+                        checkboxContainer.removeAllViews(); // remove the current list items
+                    } else {
+                        // give an information popup that tells the user that the list exists
+                        AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
+                        builder1.setTitle("Add List")
+                                .setMessage("List Already Exists: '" + spinnerDropdown.getSelectedItem() + "'?")
+                                .setPositiveButton("Ok", null);
+                        builder1.create().show();
                     }
                 })
                 .setNegativeButton("Cancel", null);
@@ -186,8 +224,22 @@ public class MainActivity extends AppCompatActivity {
 
                     // Check if the entered text is not empty
                     if (!TextUtils.isEmpty(newText)) {
-                        // Add a new checkbox with the entered text
-                        addCheckbox(newText);
+                        // make sure the list item isn't already there
+                        boolean itemExists = false;
+                        for(GroceryItem item : Objects.requireNonNull(groceryLists.get(currentList))) {
+                            if(newText.compareTo(item.name) == 0) { // if text is already in list
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                builder.setTitle("Add grocery List Item")
+                                        .setMessage("Value '" + newText + "' already exists in list")
+                                        .setPositiveButton("Ok", null);
+                                builder.create().show();
+                                itemExists = true;
+                                break;
+                            }
+                        }
+                        if(!itemExists)
+                            // Add a new checkbox with the entered text
+                            addCheckbox(newText, false);
                     } else {
                         // Show a toast message if the entered text is empty
                         Toast.makeText(MainActivity.this, "Text cannot be empty", Toast.LENGTH_SHORT).show();
@@ -200,20 +252,32 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    private void addCheckbox(String text) {
+    private void addCheckbox(String text, boolean checkedOff) {
         CheckBox newCheckbox = new CheckBox(this);
+        text = text.trim();
         newCheckbox.setText(text);
+        newCheckbox.setChecked(checkedOff);
+        if (checkedOff)
+            newCheckbox.getPaint().setFlags(newCheckbox.getPaint().getFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        Objects.requireNonNull(groceryLists.get(currentList)).add(new GroceryItem(text, false)); // add item to list
 
         // Set an OnCheckedChangeListener to handle checkbox state changes
-        newCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // Apply or remove strikethrough based on the checkbox state
-                if (isChecked) {
-                    buttonView.setPaintFlags(buttonView.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
-                } else {
-                    buttonView.setPaintFlags(buttonView.getPaintFlags() & ~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+        String finalText = text;
+        newCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // Apply or remove strikethrough based on the checkbox state
+
+            // change value from list
+            for (GroceryItem item : Objects.requireNonNull(groceryLists.get(currentList))) {
+                if (item.name.compareTo(finalText) == 0) {
+                    item.checked = isChecked;
                 }
+            }
+
+            if (isChecked) {
+                buttonView.setPaintFlags(buttonView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+
+            } else {
+                buttonView.setPaintFlags(buttonView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
             }
         });
         checkboxContainer.addView(newCheckbox);
