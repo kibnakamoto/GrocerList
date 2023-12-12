@@ -2,7 +2,9 @@ package com.example.grocerlist;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -284,6 +286,61 @@ public class MainActivity extends AppCompatActivity {
                 buttonView.setPaintFlags(buttonView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
             }
         });
-        checkboxContainer.addView(newCheckbox);
+        LinearLayout containerLayout = new LinearLayout(this);
+        containerLayout.setOrientation(LinearLayout.HORIZONTAL);
+        containerLayout.addView(newCheckbox);
+
+
+        Button renameButton = new Button(this);
+        renameButton.setText("\t❌");
+        renameButton.setTextColor(Color.RED);
+        renameButton.setTypeface(null, Typeface.BOLD);
+
+        // Set an OnClickListener to handle button click
+        String finalText1 = text;
+        final String[] textFinal = {text};
+        renameButton.setOnClickListener(v -> renameCheckbox(textFinal));
+        containerLayout.addView(renameButton);
+
+        checkboxContainer.addView(containerLayout);
+    }
+
+    // Rename a checkbox
+    private void renameCheckbox(String[] renamedItem) {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edittext, null);
+        EditText editText = dialogView.findViewById(R.id.editTextDialog);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogView)
+                .setTitle("Rename")
+                .setPositiveButton("Ok", (dialog, which) -> {
+            String newText = editText.getText().toString().trim();
+            for (int i = 0; i < checkboxContainer.getChildCount(); i++) {
+                View view = checkboxContainer.getChildAt(i);
+                LinearLayout linearLayout = ((LinearLayout)view);
+                for (int j = 0; j < linearLayout.getChildCount(); j++) {
+                    View innerView = linearLayout.getChildAt(j);
+
+                    if (innerView instanceof CheckBox) {
+                        CheckBox checkBox = (CheckBox) innerView;
+
+                        if (checkBox.getText().toString().equals(renamedItem[0].trim())) {
+                            checkBox.setText(newText.trim());
+                            if (groceryLists.containsKey(currentList)) { // update the list
+                                for (GroceryItem item : Objects.requireNonNull(groceryLists.get(currentList))) {
+                                    if (item.name.equals(renamedItem[0])) {
+                                        item.name = newText;
+                                        renamedItem[0] = newText;
+                                        break;  // Stop iterating once the item is found and updated
+                                    }
+                                }
+                            }
+                            break;  // Stop searching once the checkbox is found and updated
+                        }
+                    }
+                }
+            }
+        })
+        .setNegativeButton("Cancel", null);
+        builder.create().show();
     }
 }
