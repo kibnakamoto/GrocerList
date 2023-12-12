@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -97,9 +98,8 @@ public class MainActivity extends AppCompatActivity {
                 checkboxContainer.removeAllViews();
 
                 // put the values from the new selected list
-                for(GroceryItem item : Objects.requireNonNull(groceryLists.get(currentList))) {
+                for (GroceryItem item : Objects.requireNonNull(groceryLists.get(currentList))) {
                     addCheckbox(item.name, item.checked);
-
                 }
             }
 
@@ -139,27 +139,32 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage("Are you sure you want to remove list: '" + spinnerDropdown.getSelectedItem() + "'?")
                 .setPositiveButton("Remove", (dialog, which) -> {
                     // Get the selected item
+                    int indexOfSelected = spinnerDropdown.getSelectedItemPosition();
                     String selectedList = (String) spinnerDropdown.getSelectedItem();
 
                     // Remove the selected item
-                    dropdownItems.remove(selectedList);
+                    dropdownItems.remove(indexOfSelected);
+
+                    // Update the adapter
+                    adapter.notifyDataSetChanged();
+                    checkboxContainer.removeAllViews();
 
                     // select new list value
                     if(!dropdownItems.isEmpty()) {
-                        currentList = (String) spinnerDropdown.getSelectedItem();
+                        groceryLists.remove(selectedList); // remove old item
+
+                        int newIndex = Math.min(indexOfSelected, dropdownItems.size() - 1);
+                        currentList = (String) dropdownItems.get(newIndex);
+                        spinnerDropdown.setSelection(newIndex);
 
                         // put the values from the new selected list
                         for (GroceryItem item : Objects.requireNonNull(groceryLists.get(currentList))) {
                             addCheckbox(item.name, item.checked);
                         }
-                        groceryLists.remove(selectedList); // remove old item
                     } else {
                         currentList = null;
                     }
-                    checkboxContainer.removeAllViews();
 
-                    // Update the adapter
-                    adapter.notifyDataSetChanged();
                 })
                 .setNegativeButton("Cancel", null);
 
@@ -237,9 +242,11 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             }
                         }
-                        if(!itemExists)
+                        if(!itemExists) {
                             // Add a new checkbox with the entered text
+                            Objects.requireNonNull(groceryLists.get(currentList)).add(new GroceryItem(newText, false)); // add item to list
                             addCheckbox(newText, false);
+                        }
                     } else {
                         // Show a toast message if the entered text is empty
                         Toast.makeText(MainActivity.this, "Text cannot be empty", Toast.LENGTH_SHORT).show();
@@ -259,7 +266,6 @@ public class MainActivity extends AppCompatActivity {
         newCheckbox.setChecked(checkedOff);
         if (checkedOff)
             newCheckbox.getPaint().setFlags(newCheckbox.getPaint().getFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-        Objects.requireNonNull(groceryLists.get(currentList)).add(new GroceryItem(text, false)); // add item to list
 
         // Set an OnCheckedChangeListener to handle checkbox state changes
         String finalText = text;
