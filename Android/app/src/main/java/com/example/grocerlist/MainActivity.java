@@ -60,8 +60,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Find views by their respective IDs
-        EditText searchBar = findViewById(R.id.searchBar);
         checkboxContainer = findViewById(R.id.checkboxContainer);
         // for list in the list
         Button addButton = findViewById(R.id.addButton);

@@ -32,25 +32,12 @@
             android:textSize="24sp"
 	    	android:background="@drawable/button_background" />
 
-
-    <!-- Search Bar -->
-    <EditText
-        android:id="@+id/searchBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Search"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-		android:layout_marginTop="16dp" />
-
-	
 <!-- Add/Remove list -->
 	  <LinearLayout
         android:id="@+id/buttonsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@id/searchBar">
+		android:orientation="horizontal">
         <Button
             android:id="@+id/btnAddItem"
             android:layout_width="0dp"
