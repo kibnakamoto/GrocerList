@@ -288,11 +288,10 @@ public class MainActivity extends AppCompatActivity {
         });
         LinearLayout containerLayout = new LinearLayout(this);
         containerLayout.setOrientation(LinearLayout.HORIZONTAL);
-        containerLayout.addView(newCheckbox);
 
 
         Button renameButton = new Button(this);
-        renameButton.setText("\t❌");
+        renameButton.setText("\t✏\uFE0F");
         renameButton.setTextColor(Color.RED);
         renameButton.setTypeface(null, Typeface.BOLD);
 
@@ -301,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
         final String[] textFinal = {text};
         renameButton.setOnClickListener(v -> renameCheckbox(textFinal));
         containerLayout.addView(renameButton);
-
+        containerLayout.addView(newCheckbox);
         checkboxContainer.addView(containerLayout);
     }
 
