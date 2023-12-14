@@ -264,6 +264,8 @@ public class MainActivity extends AppCompatActivity {
         text = text.trim();
         newCheckbox.setText(text);
         newCheckbox.setChecked(checkedOff);
+        final String[] textFinal = {text};
+
         if (checkedOff)
             newCheckbox.getPaint().setFlags(newCheckbox.getPaint().getFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
@@ -281,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (isChecked) {
                 buttonView.setPaintFlags(buttonView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-
+                showRemoveItemConfirmationDialog(textFinal[0]);
             } else {
                 buttonView.setPaintFlags(buttonView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
             }
@@ -296,12 +298,58 @@ public class MainActivity extends AppCompatActivity {
         renameButton.setTypeface(null, Typeface.BOLD);
 
         // Set an OnClickListener to handle button click
-        String finalText1 = text;
-        final String[] textFinal = {text};
         renameButton.setOnClickListener(v -> renameCheckbox(textFinal));
         containerLayout.addView(renameButton);
         containerLayout.addView(newCheckbox);
         checkboxContainer.addView(containerLayout);
+    }
+
+    // Method to show a confirmation dialog before removing an item
+    private void showRemoveItemConfirmationDialog(String itemName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Remove Item")
+                .setMessage("Are you sure you want to remove item: '" + itemName + "'?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    // Call a method to remove the item when 'Yes' is clicked
+                    removeItem(itemName);
+                })
+                .setNegativeButton("No", null);
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.setOnShowListener(dialogInterface -> {
+            Button buttonYes = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            buttonYes.setOnClickListener(view -> {
+                // Here you can add any additional logic before calling removeItem
+                // For example, you can prompt another dialog for confirmation
+
+                // Call a method to remove the item when 'Yes' is clicked
+                removeItem(itemName);
+
+                // Dismiss the current dialog if needed
+                alertDialog.dismiss();
+            });
+        });
+
+        alertDialog.show();
+    }
+
+    // Method to remove an item
+    private void removeItem(String itemName) {
+        // Remove the item from the list and update the UI
+        Iterator<GroceryItem> iterator = Objects.requireNonNull(groceryLists.get(currentList)).iterator();
+        while (iterator.hasNext()) {
+            GroceryItem item = iterator.next();
+            if (item.name.equals(itemName)) {
+                iterator.remove();
+                break;
+            }
+        }
+
+        // Update the UI to reflect the changes
+        checkboxContainer.removeAllViews();
+        for (GroceryItem item : Objects.requireNonNull(groceryLists.get(currentList))) {
+            addCheckbox(item.name, item.checked);
+        }
     }
 
     // Rename a checkbox
