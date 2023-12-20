@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Objects;
 
 // grocery list item
+// Author: Taha
 class GroceryItem
 {
     public boolean checked; // checked off
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     // format: Map< list, grocery-items<grocery item> >
     private Map<String, List<GroceryItem>> groceryLists; // the list of lists
 
+    // Author: Taha
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Method to dynamically add items to the list of lists
+    // Author: Taha
     private void addItemToDropdown(String newItem) {
         dropdownItems.add(newItem);
         ArrayAdapter<String> adapter = (ArrayAdapter<String>) spinnerDropdown.getAdapter();
@@ -149,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // remove list
+    // Author: Taha
     private void showRemoveItemDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Remove List")
@@ -188,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // get the button name from the user and add new list
+    // Author: Taha
     private void showAddItemDialog() {
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_add_item, null);
@@ -229,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // enter text of checkbox
+    // Author: Taha
     private void openEditTextDialog() {
         // Use a custom dialog or AlertDialog to prompt the user for text input
         // For simplicity, this example uses a custom layout with an EditText
@@ -275,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
+    // Author: Taha
     private void addCheckbox(String text, boolean checkedOff) {
         CheckBox newCheckbox = new CheckBox(this);
         text = text.trim();
@@ -321,6 +328,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Method to show a confirmation dialog before removing an item
+    // Author: Ashwin
     private void showRemoveItemConfirmationDialog(String itemName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Remove Item")
@@ -350,6 +358,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Method to remove an item
+    // Author: Ash
     private void removeItem(String itemName) {
         // Remove the item from the list and update the UI
         Iterator<GroceryItem> iterator = Objects.requireNonNull(groceryLists.get(currentList)).iterator();
@@ -369,7 +378,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Rename a checkbox
-	// ask the user if they are sure they want to rename as checkbox.
+    // ask the user if they are sure they want to rename as checkbox.
+    // Author: Taha
     private void renameCheckbox(String[] renamedItem) {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edittext, null);
         EditText editText = dialogView.findViewById(R.id.editTextDialog);
