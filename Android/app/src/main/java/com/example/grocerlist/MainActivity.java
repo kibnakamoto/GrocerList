@@ -1,13 +1,29 @@
+/* Copyright (c) 2023 Taha Canturk, Ashwin Rajakrishna, Kohei Arizumi, Henry Lin
+ * this program is free software: you can redistribute it and/or modify
+ * it under the terms of the gnu general public license as published by
+ * the free software foundation, either version 3 of the license, or
+ * (at your option) any later version.
+ * this program is distributed in the hope that it will be useful,
+ * but without any warranty; without even the implied warranty of
+ * merchantability or fitness for a particular purpose.  see the
+ * gnu general public license for more details.
+ * you should have received a copy of the gnu general public license
+ * along with this program.  if not, see <https://www.gnu.org/licenses/>.
+ *
+ * Contributors: Taha, Ashwin
+ * Date: 2023, Dec 20
+ * Description: This is the android version of the GrocerList application for grocery list management. 
+ * Version: 1.0
+ */
+
 package com.example.grocerlist;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -353,6 +369,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Rename a checkbox
+	// ask the user if they are sure they want to rename as checkbox.
     private void renameCheckbox(String[] renamedItem) {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edittext, null);
         EditText editText = dialogView.findViewById(R.id.editTextDialog);
